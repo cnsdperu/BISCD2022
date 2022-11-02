@@ -1,0 +1,166 @@
+
+--------------------------------------------------------------------------
+
+░█████╗░  ███╗░░██╗  ░██████╗  ██████╗░
+██╔══██╗  ████╗░██║  ██╔════╝  ██╔══██╗
+██║░░╚═╝  ██╔██╗██║  ╚█████╗░  ██║░░██║
+██║░░██╗  ██║╚████║  ░╚═══██╗  ██║░░██║
+╚█████╔╝  ██║░╚███║  ██████╔╝  ██████╔╝
+░╚════╝░  ╚═╝░░╚══╝  ╚═════╝░  ╚═════╝░
+
+
+█▀▀ █▀▀ █▄░█ ▀█▀ █▀█ █▀█   █▄░█ ▄▀█ █▀▀ █ █▀█ █▄░█ ▄▀█ █░░
+█▄▄ ██▄ █░▀█ ░█░ █▀▄ █▄█   █░▀█ █▀█ █▄▄ █ █▄█ █░▀█ █▀█ █▄▄
+
+█▀▄ █▀▀   █▀ █▀▀ █▀▀ █░█ █▀█ █ █▀▄ ▄▀█ █▀▄   █▀▄ █ █▀▀ █ ▀█▀ ▄▀█ █░░
+█▄▀ ██▄   ▄█ ██▄ █▄█ █▄█ █▀▄ █ █▄▀ █▀█ █▄▀   █▄▀ █ █▄█ █ ░█░ █▀█ █▄▄
+
+
+
+------------------------ WORKSHOP 4 ----------------------------------------
+
+-------------  Multiple factor de autenticación-----------------------------
+############################################################################
+#                                                                          #
+# > Jeler Vásquez Cobos                                                    #
+#                                                                          #     
+############################################################################
+
+
+
+          _________                               _________
+         / ======= \                             / ======= \
+        / __________\                           / __________\
+       | ___________ |                         | ___________ |
+       | | -       | |                         | | -       | |
+       | |         | |                         | |         | |
+       | |_________| |_________________________| |_________| |
+       \=____________/  acceso remoto seguro   \=____________/     
+       / ''''''''''''\                         / ''''''''''''\                    
+      / ::::::::::::: \                       / ::::::::::::: \
+     (_________________)                     (_________________)
+
+
+Autenticación multifactor (MFA)
+google-authenticator
+
+Es una tecnología de seguridad que requiere múltiples métodos de autenticación
+de categorías independientes de credenciales para verificar la identidad de un 
+usuario para un inicio de sesión u otra transacción. La autenticación 
+multifactor combina dos o más credenciales independientes:
+
+                 \
+     Login:      |
+                  >   Algo que sé  
+     Password:   |
+                 /   
+
+
+      * *    *     
+     *  *   **   \  
+    *   *  * *   |   
+    *****    *    >  Algo q	ue tengo
+        *    *   |      
+        *    *   /     
+        *  *****    
+        
+    
+      ~~~~~~~~   \
+     |  o  o  |  |
+     |    ^   |   >   Algo que soy
+     |    ~   |  |
+      \______/   /
+
+
+El Autenticador de Google genera códigos de verificación en dos pasos en tu 
+teléfono.
+
+I. OBJETIVO
+ • Proteger el acceso remoto a servidores Linux mediante la autenticación de 
+   dos factores.
+
+II. REQUISITOS
+Los siguientes elementos de software son necesarios para la realización del 
+laboratorio:
+ • Ubuntu Linux
+ • Un teléfono inteligente o tableta con una aplicación OATH-TOTP instalada, 
+   como Google Authenticator
+
+III. EJECUCIÓN DEL LABORATORIO
+ Paso 1: Instalación y configuración.
+      1. Iniciar Ubuntu Linux
+
+      2. Instalar PAM (Pluggable Authentication Modules) de Google
+         ◦Instalar PAM Google Authenticator
+
+            sudo apt install libpam-google-authenticator
+
+      3. Crear una cuenta de usuario e iniciar sesión en una consola virtual
+
+            sudo adduser user1
+
+        ◦Ir a la consola 2
+
+            ALT + F2
+
+        ◦Ir a la consola 2
+
+            Iniciar sesión con la cuenta: user1
+
+      4. Generar una clave TOTP para el usuario al que desea agregar un segundo 
+         factor 
+
+         google-authenticator
+
+         Responder las preguntas:
+
+         Do you want authentication tokens to be time-based (y/n) y
+
+
+         ** Se muestra imagen del QR **
+         ** Se muestra una llave secreta **
+ 
+
+         cd
+
+      5. Desde un equipo móvil iniciar el Google Authenticator
+         ◦Capturar el codigo QR que se muestra en el equipo Rocky Linux
+
+
+ Paso 2: Configuración de SSH.
+      1. Con el comando nano editar el archivo /etc/pam.d/sshd. Debajo de la línea 
+         "@include common-auth", agregar lo siguiente:
+
+          auth required pam_google_authenticator.so
+
+         
+      2. Con el comando nano editar el archivo /etc/ssh/sshd_config
+
+         En caso sea un Ubuntu 20.04:
+          Buscar la línea:
+          ChallengeResponseAuthentication no
+
+          Cambiar la línea de arriba a:
+          ChallengeResponseAuthentication yes
+
+         En caso sea un Ubuntu 22.04:
+
+          Buscar la línea:
+          KbdInteractiveAuthentication no
+
+          Cambiar la línea de arriba a:
+          KbdInteractiveAuthentication yes
+
+         Guarde y cierre ese archivo.
+
+      3. Reiniciar el servicio sshd
+
+         systemctl restart sshd
+
+      4. Probar funcionamiento
+         ◦ Iniciar sesión remota con Putty.
+         ◦ Iniciar sesión remota con WinSCP.
+
+
+ 
+
